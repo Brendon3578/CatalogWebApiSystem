@@ -1,6 +1,6 @@
 ﻿namespace CatalogWebApiSystem.Domain.Models;
 
-// Classes anêmicas (só com propriedades)
+// Classes anêmicas (só com propriedades - sem comportamento)
 public class Category
 {
     public int CategoryId { get; set; }
