@@ -19,13 +19,16 @@ namespace CatalogWebApiSystem.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
         {
-            return await _context.Categories.ToListAsync();
+            return await _context.Categories.AsNoTracking().ToListAsync();
         }
 
         [HttpGet("{id:int}", Name = "GetCategory")]
         public async Task<ActionResult<Category>> GetCategory(int id)
         {
-            var category = await _context.Categories.FindAsync(id);
+            var category = await _context.Categories
+                .AsNoTracking()
+                .FirstOrDefaultAsync(c => c.CategoryId == id);
+
             if (category == null)
                 return NotFound();
 
@@ -36,6 +39,7 @@ namespace CatalogWebApiSystem.Controllers
         public async Task<ActionResult<IEnumerable<Category>>> GetCategoriesProducts()
         {
             var categories = await _context.Categories
+                .AsNoTracking()
                 .Include(c => c.Products)
                 .ToListAsync();
 
@@ -46,6 +50,7 @@ namespace CatalogWebApiSystem.Controllers
         public async Task<ActionResult<Category>> GetCategoryProducts(int id)
         {
             var category = await _context.Categories
+                .AsNoTracking()
                 .Include(c => c.Products)
                 .FirstOrDefaultAsync(c => c.CategoryId == id);
 
@@ -101,6 +106,6 @@ namespace CatalogWebApiSystem.Controllers
         }
 
         private bool CategoryExists(int id) =>
-            _context.Categories.Any(e => e.CategoryId == id);
+            _context.Categories.AsNoTracking().Any(e => e.CategoryId == id);
     }
 }
