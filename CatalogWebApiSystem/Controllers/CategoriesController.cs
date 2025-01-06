@@ -47,18 +47,19 @@ namespace CatalogWebApiSystem.Controllers
             return category;
         }
 
-        [HttpGet("products/{id:int}")]
-        public async Task<ActionResult<Category>> GetCategoryProducts(int id)
-        {
-            var category = await _context.Categories
-                .AsNoTracking()
-                .Include(c => c.Products)
-                .FirstOrDefaultAsync(c => c.CategoryId == id);
 
-            if (category == null)
+        [HttpGet("{id:int}/products")]
+        public async Task<ActionResult<IEnumerable<Product>>> GetCategoryProducts(int id)
+        {
+            var products = await _context.Products
+                .AsNoTracking()
+                .Where(p => p.CategoryId == id)
+                .ToListAsync();
+
+            if (products.Count == 0)
                 return NotFound();
 
-            return category;
+            return products;
         }
 
         [HttpPost]
