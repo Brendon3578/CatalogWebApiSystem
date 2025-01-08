@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using CatalogWebApiSystem.Domain.Validations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
@@ -12,15 +13,18 @@ public class Product
 
     [Required]
     [StringLength(80)]
+    [MaxLength(80)]
     public string? Name { get; set; }
 
     [Required]
     [StringLength(256)]
+    [MaxLength(256)]
     public string? Description { get; set; }
 
     [Required]
-    [Url]
+    [IsUrl]
     [StringLength(256)]
+    [MaxLength(256)]
     public string? ImageUrl { get; set; }
 
     [Required]
