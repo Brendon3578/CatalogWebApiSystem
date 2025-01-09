@@ -31,11 +31,17 @@ if (app.Environment.IsDevelopment())
 {
     //app.UseSwagger();
     //app.UseSwaggerUI();
+    var scalarTitle = builder.Configuration["ScalarConfiguration:Title"] ?? "Catalog API";
+
     app.UseSwagger(options =>
     {
         options.RouteTemplate = "/openapi/{documentName}.json";
     });
-    app.MapScalarApiReference();
+    app.MapScalarApiReference(configureOptions =>
+    {
+        configureOptions.WithTitle(scalarTitle);
+        configureOptions.Theme = ScalarTheme.DeepSpace;
+    });
 }
 
 app.UseHttpsRedirection();
