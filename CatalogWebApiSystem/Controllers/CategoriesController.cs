@@ -37,6 +37,9 @@ namespace CatalogWebApiSystem.Controllers
         [HttpGet("{id:int}", Name = "GetCategory")]
         public async Task<ActionResult<Category>> GetCategory(int id)
         {
+            if (id < 1 || id > 9999) // teste de exceção
+                throw new Exception("Id is out of range");
+
             var category = await _context.Categories
                 .AsNoTracking()
                 .FirstOrDefaultAsync(c => c.CategoryId == id);

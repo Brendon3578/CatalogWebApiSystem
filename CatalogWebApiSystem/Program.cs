@@ -1,4 +1,5 @@
 using CatalogWebApiSystem.Context;
+using CatalogWebApiSystem.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 using System.Text.Json.Serialization;
@@ -21,7 +22,6 @@ builder.Services.AddDbContext<CatalogWebApiSystemContext>(options =>
     options.UseMySql(mySqlConnection,
     ServerVersion.AutoDetect(mySqlConnection)));
 
-
 var app = builder.Build();
 
 // Configuração de Middlewares (Startup ->Configure)
@@ -40,14 +40,13 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference(configureOptions =>
     {
         configureOptions.WithTitle(scalarTitle);
-        configureOptions.Theme = ScalarTheme.DeepSpace;
+        configureOptions.Theme = ScalarTheme.Saturn;
     });
+    app.ConfigureExceptionHandler();
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();
