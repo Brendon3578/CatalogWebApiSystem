@@ -1,6 +1,7 @@
 ﻿using CatalogWebApiSystem.Context;
 using CatalogWebApiSystem.Domain.Constants;
 using CatalogWebApiSystem.Domain.Models;
+using CatalogWebApiSystem.Filters;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,6 +9,7 @@ namespace CatalogWebApiSystem.Controllers
 {
     [Route("[controller]")]
     [ApiController]
+    [ServiceFilter(typeof(ApiLoggingResultFilter))]
     public class CategoriesController : ControllerBase
     {
         private readonly CatalogWebApiSystemContext _context;

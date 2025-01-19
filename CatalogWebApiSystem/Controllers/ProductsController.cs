@@ -1,5 +1,6 @@
 ﻿using CatalogWebApiSystem.Context;
 using CatalogWebApiSystem.Domain.Models;
+using CatalogWebApiSystem.Filters;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CatalogWebApiSystem.Controllers
 {
+    [ServiceFilter(typeof(ApiLoggingResultFilter))]
     [Route("[controller]")]
     [ApiController]
     public class ProductsController : ControllerBase
