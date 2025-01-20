@@ -1,5 +1,4 @@
 ﻿using CatalogWebApiSystem.Context;
-using CatalogWebApiSystem.Domain.Constants;
 using CatalogWebApiSystem.Domain.Models;
 using CatalogWebApiSystem.Filters;
 using Microsoft.AspNetCore.Mvc;
@@ -20,21 +19,8 @@ namespace CatalogWebApiSystem.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
-        {
-            try
-            {
-                return await _context.Categories.AsNoTracking().ToListAsync();
-            }
-            catch (Exception)
-            {
-                return StatusCode(
-                    StatusCodes.Status500InternalServerError,
-                    ApiErrorMessages.UnableToRecognizeRequest
-                );
-                throw;
-            }
-        }
+        public async Task<ActionResult<IEnumerable<Category>>> GetCategories() =>
+            await _context.Categories.AsNoTracking().ToListAsync();
 
         [HttpGet("{id:int}", Name = "GetCategory")]
         public async Task<ActionResult<Category>> GetCategory(int id)

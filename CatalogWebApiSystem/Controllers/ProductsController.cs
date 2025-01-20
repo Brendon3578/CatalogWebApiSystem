@@ -21,16 +21,15 @@ namespace CatalogWebApiSystem.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
-        {
-            return await _context.Products
-                .AsNoTracking()
-                .ToListAsync();
-        }
+        public async Task<ActionResult<IEnumerable<Product>>> GetProducts() =>
+            await _context.Products.AsNoTracking().ToListAsync();
 
         [HttpGet("{id:int}", Name = "GetProduct")]
         public async Task<ActionResult<Product>> GetProduct(int id)
         {
+            if (id < 1 || id > 9999) // teste de exceção
+                throw new Exception("Id is out of range");
+
             var product = await _context.Products
                 .AsNoTracking()
                 .FirstOrDefaultAsync(p => p.ProductId == id);
@@ -80,7 +79,9 @@ namespace CatalogWebApiSystem.Controllers
             var product = await _context.Products.FindAsync(id);
 
             if (product == null) return NotFound();
+
             _context.Products.Remove(product);
+
             await _context.SaveChangesAsync();
 
             return NoContent();
