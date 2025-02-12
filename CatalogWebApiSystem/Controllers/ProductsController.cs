@@ -1,6 +1,6 @@
-﻿using CatalogWebApiSystem.Context;
-using CatalogWebApiSystem.Domain.Models;
+﻿using CatalogWebApiSystem.Domain.Models;
 using CatalogWebApiSystem.Filters;
+using CatalogWebApiSystem.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,16 +13,21 @@ namespace CatalogWebApiSystem.Controllers
     [ApiController]
     public class ProductsController : ControllerBase
     {
-        private readonly CatalogWebApiSystemContext _context;
+        private readonly IProductRepository _repository;
 
-        public ProductsController(CatalogWebApiSystemContext context)
+        public ProductsController(IProductRepository repository)
         {
-            _context = context;
+            _repository = repository;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Product>>> GetProducts() =>
-            await _context.Products.AsNoTracking().ToListAsync();
+        public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
+        {
+            var products = await _repository.GetProducts().ToListAsync();
+
+            return Ok(products);
+
+        }
 
         [HttpGet("{id:int}", Name = "GetProduct")]
         public async Task<ActionResult<Product>> GetProduct(int id)
@@ -30,21 +35,21 @@ namespace CatalogWebApiSystem.Controllers
             if (id < 1 || id > 9999) // teste de exceção
                 throw new Exception("Id is out of range");
 
-            var product = await _context.Products
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.ProductId == id);
+            var product = await _repository.GetProductAsync(id);
 
             if (product == null)
                 return NotFound();
 
-            return product;
+            return Ok(product);
         }
 
         [HttpPost]
         public async Task<ActionResult<Product>> PostProduct(Product product)
         {
-            _context.Products.Add(product);
-            await _context.SaveChangesAsync();
+            if (product is null)
+                return BadRequest();
+
+            await _repository.CreateAsync(product);
 
             return CreatedAtAction(nameof(GetProduct), new { id = product.ProductId }, product);
         }
@@ -52,22 +57,17 @@ namespace CatalogWebApiSystem.Controllers
         [HttpPut("{id:int}")] // constraint -> restrição
         public async Task<IActionResult> PutProduct(int id, Product product)
         {
+            if (product is null)
+                return BadRequest();
+
             if (id != product.ProductId)
                 return BadRequest("Product id don't match.");
 
-            _context.Entry(product).State = EntityState.Modified;
+            var success = await _repository.UpdateAsync(product);
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ProductExists(id))
-                    return NotFound();
-                else
-                    throw;
-            }
+            if (!success)
+                return BadRequest($"Fail when updating product with id {id}.");
+
 
             //return NoContent();
             return Ok(product);
@@ -76,18 +76,12 @@ namespace CatalogWebApiSystem.Controllers
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
-            var product = await _context.Products.FindAsync(id);
+            var success = await _repository.DeleteAsync(id);
 
-            if (product == null) return NotFound();
-
-            _context.Products.Remove(product);
-
-            await _context.SaveChangesAsync();
+            if (!success)
+                return BadRequest("Fail when deleting product with id {id}.");
 
             return NoContent();
         }
-
-        private bool ProductExists(int id) =>
-            _context.Products.Any(e => e.ProductId == id);
     }
 }
