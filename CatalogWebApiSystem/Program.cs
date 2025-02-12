@@ -2,6 +2,7 @@ using CatalogWebApiSystem.Context;
 using CatalogWebApiSystem.Extensions;
 using CatalogWebApiSystem.Filters;
 using CatalogWebApiSystem.Logging;
+using CatalogWebApiSystem.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 using System.Text.Json.Serialization;
@@ -35,6 +36,8 @@ builder.Logging.AddProvider(new CustomLoggerProvider(
 ));
 
 builder.Services.AddScoped<ApiLoggingResultFilter>();
+
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 
 var app = builder.Build();
 

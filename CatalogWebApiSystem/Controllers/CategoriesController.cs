@@ -1,6 +1,6 @@
-﻿using CatalogWebApiSystem.Context;
-using CatalogWebApiSystem.Domain.Models;
+﻿using CatalogWebApiSystem.Domain.Models;
 using CatalogWebApiSystem.Filters;
+using CatalogWebApiSystem.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,16 +11,19 @@ namespace CatalogWebApiSystem.Controllers
     [ServiceFilter(typeof(ApiLoggingResultFilter))]
     public class CategoriesController : ControllerBase
     {
-        private readonly CatalogWebApiSystemContext _context;
+        private readonly ICategoryRepository _repository;
 
-        public CategoriesController(CatalogWebApiSystemContext context)
+        public CategoriesController(ICategoryRepository repository)
         {
-            _context = context;
+            _repository = repository;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Category>>> GetCategories() =>
-            await _context.Categories.AsNoTracking().ToListAsync();
+        public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
+        {
+            var categories = await _repository.GetCategoriesAsync();
+            return Ok(categories);
+        }
 
         [HttpGet("{id:int}", Name = "GetCategory")]
         public async Task<ActionResult<Category>> GetCategory(int id)
@@ -28,36 +31,30 @@ namespace CatalogWebApiSystem.Controllers
             if (id < 1 || id > 9999) // teste de exceção
                 throw new Exception("Id is out of range");
 
-            var category = await _context.Categories
-                .AsNoTracking()
-                .FirstOrDefaultAsync(c => c.CategoryId == id);
+            var category = await _repository.GetCategoryAsync(id);
 
             if (category == null)
                 return NotFound();
 
-            return category;
+            return Ok(category);
         }
 
 
         [HttpGet("{id:int}/products")]
         public async Task<ActionResult<IEnumerable<Product>>> GetCategoryProducts(int id)
         {
-            var products = await _context.Products
-                .AsNoTracking()
-                .Where(p => p.CategoryId == id)
-                .ToListAsync();
+            var products = await _repository.GetProductsAsync(id);
 
-            if (products.Count == 0)
+            if (!products.Any())
                 return NotFound();
 
-            return products;
+            return Ok(products);
         }
 
         [HttpPost]
         public async Task<ActionResult<Category>> PostCategory(Category category)
         {
-            _context.Categories.Add(category);
-            await _context.SaveChangesAsync();
+            await _repository.CreateAsync(category);
 
             return CreatedAtAction(nameof(GetCategory), new { id = category.CategoryId }, category);
         }
@@ -68,15 +65,15 @@ namespace CatalogWebApiSystem.Controllers
             if (id != category.CategoryId)
                 return BadRequest("Category id don't match.");
 
-            _context.Entry(category).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
+                await _repository.UpdateAsync(category);
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!CategoryExists(id))
+                var categoryExists = await _repository.CategoryExistsAsync(id);
+
+                if (!categoryExists)
                     return NotFound();
                 else
                     throw;
@@ -89,16 +86,15 @@ namespace CatalogWebApiSystem.Controllers
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteCategory(int id)
         {
-            var category = await _context.Categories.FindAsync(id);
+
+            var category = await _repository.GetCategoryAsync(id);
 
             if (category == null) return NotFound();
-            _context.Categories.Remove(category);
-            await _context.SaveChangesAsync();
+
+            var deletedCategory = await _repository.DeleteAsync(id);
 
             return NoContent();
         }
 
-        private bool CategoryExists(int id) =>
-            _context.Categories.AsNoTracking().Any(e => e.CategoryId == id);
     }
 }

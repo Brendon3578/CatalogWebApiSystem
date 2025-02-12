@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
 namespace CatalogWebApiSystem.Domain.Models;
@@ -27,6 +28,7 @@ public class Category : IValidatableObject
     [MaxLength(256)]
     public string? ImageUrl { get; set; }
 
+    [JsonIgnore]
     public ICollection<Product>? Products { get; set; }
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
@@ -50,7 +52,6 @@ public class Category : IValidatableObject
                 yield return new ValidationResult("URL provided is Invalid.",
                     [nameof(ImageUrl)]
                 );
-
         }
     }
 }
