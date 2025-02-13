@@ -3,6 +3,7 @@ using CatalogWebApiSystem.Extensions;
 using CatalogWebApiSystem.Filters;
 using CatalogWebApiSystem.Logging;
 using CatalogWebApiSystem.Repositories;
+using CatalogWebApiSystem.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 using System.Text.Json.Serialization;
@@ -39,6 +40,7 @@ builder.Services.AddScoped<ApiLoggingResultFilter>();
 
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
 var app = builder.Build();
 

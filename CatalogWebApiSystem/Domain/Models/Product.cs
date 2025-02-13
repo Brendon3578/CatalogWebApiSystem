@@ -1,4 +1,5 @@
-﻿using CatalogWebApiSystem.Domain.Validations;
+﻿using CatalogWebApiSystem.Domain.Models.Interfaces;
+using CatalogWebApiSystem.Domain.Validations;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
@@ -6,8 +7,12 @@ using System.Text.Json.Serialization;
 namespace CatalogWebApiSystem.Domain.Models;
 
 [Table("Products")]
-public class Product
+public class Product : IEntityBase
 {
+    [JsonIgnore]
+    public int Id => ProductId;
+
+
     [Key]
     public int ProductId { get; set; }
 
@@ -39,4 +44,5 @@ public class Product
 
     [JsonIgnore]
     public Category? Category { get; set; }
+
 }

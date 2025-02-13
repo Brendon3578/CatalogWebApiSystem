@@ -1,8 +1,7 @@
 ﻿using CatalogWebApiSystem.Domain.Models;
 using CatalogWebApiSystem.Filters;
-using CatalogWebApiSystem.Repositories;
+using CatalogWebApiSystem.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -23,7 +22,7 @@ namespace CatalogWebApiSystem.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
         {
-            var products = await _repository.GetProducts().ToListAsync();
+            var products = await _repository.GetAllAsync();
 
             return Ok(products);
 
@@ -35,7 +34,7 @@ namespace CatalogWebApiSystem.Controllers
             if (id < 1 || id > 9999) // teste de exceção
                 throw new Exception("Id is out of range");
 
-            var product = await _repository.GetProductAsync(id);
+            var product = await _repository.GetAsync(p => p.ProductId == id);
 
             if (product == null)
                 return NotFound();
@@ -63,11 +62,14 @@ namespace CatalogWebApiSystem.Controllers
             if (id != product.ProductId)
                 return BadRequest("Product id don't match.");
 
-            var success = await _repository.UpdateAsync(product);
-
-            if (!success)
+            try
+            {
+                await _repository.UpdateAsync(product);
+            }
+            catch (Exception)
+            {
                 return BadRequest($"Fail when updating product with id {id}.");
-
+            }
 
             //return NoContent();
             return Ok(product);
@@ -76,10 +78,19 @@ namespace CatalogWebApiSystem.Controllers
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
-            var success = await _repository.DeleteAsync(id);
+            var product = await _repository.GetAsync(p => p.ProductId == id);
 
-            if (!success)
+            if (product == null)
+                return NotFound();
+
+            try
+            {
+                await _repository.DeleteAsync(product);
+            }
+            catch (Exception)
+            {
                 return BadRequest("Fail when deleting product with id {id}.");
+            }
 
             return NoContent();
         }
