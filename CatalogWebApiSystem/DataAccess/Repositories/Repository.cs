@@ -1,10 +1,10 @@
-﻿using CatalogWebApiSystem.Context;
+﻿using CatalogWebApiSystem.DataAccess.Context;
+using CatalogWebApiSystem.DataAccess.Interfaces;
 using CatalogWebApiSystem.Domain.Models.Interfaces;
-using CatalogWebApiSystem.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
-namespace CatalogWebApiSystem.Repositories
+namespace CatalogWebApiSystem.DataAccess.Repositories
 {
     public class Repository<T> : IRepository<T> where T : class, IEntityBase
     {

@@ -1,7 +1,7 @@
 ﻿using CatalogWebApiSystem.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace CatalogWebApiSystem.Context;
+namespace CatalogWebApiSystem.DataAccess.Context;
 
 public class CatalogWebApiSystemContext : DbContext
 {

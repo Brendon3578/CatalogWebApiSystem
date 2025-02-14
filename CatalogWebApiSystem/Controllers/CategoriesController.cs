@@ -1,6 +1,6 @@
-﻿using CatalogWebApiSystem.Domain.Models;
+﻿using CatalogWebApiSystem.DataAccess.Interfaces;
+using CatalogWebApiSystem.Domain.Models;
 using CatalogWebApiSystem.Filters;
-using CatalogWebApiSystem.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 

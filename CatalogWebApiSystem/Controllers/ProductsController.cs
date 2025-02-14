@@ -1,6 +1,6 @@
-﻿using CatalogWebApiSystem.Domain.Models;
+﻿using CatalogWebApiSystem.DataAccess.Interfaces;
+using CatalogWebApiSystem.Domain.Models;
 using CatalogWebApiSystem.Filters;
-using CatalogWebApiSystem.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860

@@ -1,8 +1,8 @@
-﻿using CatalogWebApiSystem.Context;
+﻿using CatalogWebApiSystem.DataAccess.Context;
+using CatalogWebApiSystem.DataAccess.Interfaces;
 using CatalogWebApiSystem.Domain.Models;
-using CatalogWebApiSystem.Repositories.Interfaces;
 
-namespace CatalogWebApiSystem.Repositories
+namespace CatalogWebApiSystem.DataAccess.Repositories
 {
     public class CategoryRepository : Repository<Category>, ICategoryRepository
     {

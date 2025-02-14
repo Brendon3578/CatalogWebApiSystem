@@ -1,9 +1,9 @@
-﻿using CatalogWebApiSystem.Context;
+﻿using CatalogWebApiSystem.DataAccess.Context;
+using CatalogWebApiSystem.DataAccess.Interfaces;
 using CatalogWebApiSystem.Domain.Models;
-using CatalogWebApiSystem.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace CatalogWebApiSystem.Repositories
+namespace CatalogWebApiSystem.DataAccess.Repositories
 {
     public class ProductRepository : Repository<Product>, IProductRepository
     {

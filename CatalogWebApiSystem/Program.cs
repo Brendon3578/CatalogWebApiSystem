@@ -1,9 +1,9 @@
-using CatalogWebApiSystem.Context;
+using CatalogWebApiSystem.DataAccess.Context;
+using CatalogWebApiSystem.DataAccess.Interfaces;
+using CatalogWebApiSystem.DataAccess.Repositories;
 using CatalogWebApiSystem.Extensions;
 using CatalogWebApiSystem.Filters;
 using CatalogWebApiSystem.Logging;
-using CatalogWebApiSystem.Repositories;
-using CatalogWebApiSystem.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 using System.Text.Json.Serialization;

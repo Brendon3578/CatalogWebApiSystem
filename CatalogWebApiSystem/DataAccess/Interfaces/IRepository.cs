@@ -1,7 +1,7 @@
 ﻿using CatalogWebApiSystem.Domain.Models.Interfaces;
 using System.Linq.Expressions;
 
-namespace CatalogWebApiSystem.Repositories.Interfaces
+namespace CatalogWebApiSystem.DataAccess.Interfaces
 {
     public interface IRepository<T> where T : IEntityBase
     {

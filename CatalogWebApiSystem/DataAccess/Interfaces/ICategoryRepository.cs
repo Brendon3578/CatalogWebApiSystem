@@ -1,6 +1,6 @@
 ﻿using CatalogWebApiSystem.Domain.Models;
 
-namespace CatalogWebApiSystem.Repositories.Interfaces
+namespace CatalogWebApiSystem.DataAccess.Interfaces
 {
     public interface ICategoryRepository : IRepository<Category>
     {
