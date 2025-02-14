@@ -11,19 +11,17 @@ namespace CatalogWebApiSystem.Controllers
     [ServiceFilter(typeof(ApiLoggingResultFilter))]
     public class CategoriesController : ControllerBase
     {
-        private readonly IRepository<Category> _repository;
-        private readonly IProductRepository _productsRepository;
+        private readonly IUnitOfWork _uow;
 
-        public CategoriesController(IRepository<Category> repository, IProductRepository productsRepository)
+        public CategoriesController(IUnitOfWork uow)
         {
-            _repository = repository;
-            _productsRepository = productsRepository;
+            _uow = uow;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
         {
-            var categories = await _repository.GetAllAsync();
+            var categories = await _uow.CategoryRepository.GetAllAsync();
             return Ok(categories);
         }
 
@@ -33,7 +31,7 @@ namespace CatalogWebApiSystem.Controllers
             if (id < 1 || id > 9999) // teste de exceção
                 throw new Exception("Id is out of range");
 
-            var category = await _repository.GetAsync(c => c.CategoryId == id);
+            var category = await _uow.CategoryRepository.GetAsync(c => c.CategoryId == id);
 
             if (category == null)
                 return NotFound();
@@ -45,9 +43,14 @@ namespace CatalogWebApiSystem.Controllers
         [HttpGet("{id:int}/Products")]
         public async Task<IActionResult> GetProductsByCategory(int id)
         {
-            var products = await _productsRepository.GetProductsByCategoryAsync(id);
+            var categoryExists = await _uow.CategoryRepository.GetByIdAsync(id);
 
-            if (products == null || !products.Any())
+            if (categoryExists is null)
+                return NotFound();
+
+            var products = await _uow.ProductRepository.GetProductsByCategoryAsync(id);
+
+            if (products == null)
                 return NotFound();
 
             return Ok(products);
@@ -56,7 +59,9 @@ namespace CatalogWebApiSystem.Controllers
         [HttpPost]
         public async Task<ActionResult<Category>> PostCategory(Category category)
         {
-            await _repository.CreateAsync(category);
+            await _uow.CategoryRepository.CreateAsync(category);
+
+            await _uow.CommitAsync();
 
             return CreatedAtAction(nameof(GetCategory), new { id = category.CategoryId }, category);
         }
@@ -69,13 +74,14 @@ namespace CatalogWebApiSystem.Controllers
 
             try
             {
-                await _repository.UpdateAsync(category);
+                await _uow.CategoryRepository.UpdateAsync(category);
+                await _uow.CommitAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
-                var categoryExists = await _repository.ExistsAsync(id);
+                var updatedCategory = await _uow.CategoryRepository.GetByIdAsync(id);
 
-                if (!categoryExists)
+                if (updatedCategory is null)
                     return NotFound();
                 else
                     throw;
@@ -88,12 +94,13 @@ namespace CatalogWebApiSystem.Controllers
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteCategory(int id)
         {
-            var category = await _repository.GetAsync(c => c.CategoryId == id);
+            var category = await _uow.CategoryRepository.GetAsync(c => c.CategoryId == id);
 
-            if (category == null)
+            if (category is null)
                 return NotFound();
 
-            var deletedCategory = await _repository.DeleteAsync(category);
+            var deletedCategory = await _uow.CategoryRepository.DeleteAsync(category);
+            await _uow.CommitAsync();
 
             return NoContent();
         }

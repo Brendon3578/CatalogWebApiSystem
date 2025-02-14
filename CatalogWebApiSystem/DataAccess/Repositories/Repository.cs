@@ -1,12 +1,11 @@
 ﻿using CatalogWebApiSystem.DataAccess.Context;
 using CatalogWebApiSystem.DataAccess.Interfaces;
-using CatalogWebApiSystem.Domain.Models.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
 namespace CatalogWebApiSystem.DataAccess.Repositories
 {
-    public class Repository<T> : IRepository<T> where T : class, IEntityBase
+    public class Repository<T> : IRepository<T> where T : class
     {
         protected readonly CatalogWebApiSystemContext _context;
 
@@ -16,33 +15,30 @@ namespace CatalogWebApiSystem.DataAccess.Repositories
         }
 
         public async Task<IEnumerable<T>> GetAllAsync() =>
-            await _context.Set<T>().ToListAsync();
+            await _context.Set<T>().AsNoTracking().ToListAsync();
 
         public async Task<T?> GetAsync(Expression<Func<T, bool>> predicate) =>
-            await _context.Set<T>().FirstOrDefaultAsync(predicate);
+            await _context.Set<T>().AsNoTracking().FirstOrDefaultAsync(predicate);
 
         public async Task<T> CreateAsync(T entity)
         {
             await _context.Set<T>().AddAsync(entity);
-            await _context.SaveChangesAsync();
             return entity;
         }
 
         public async Task<T> UpdateAsync(T entity)
         {
-            _context.Set<T>().Update(entity);
-            await _context.SaveChangesAsync();
+            await Task.Run(() => _context.Set<T>().Update(entity));
             return entity;
         }
 
         public async Task<T> DeleteAsync(T entity)
         {
-            _context.Set<T>().Remove(entity);
-            await _context.SaveChangesAsync();
+            await Task.Run(() => _context.Set<T>().Remove(entity));
             return entity;
         }
 
-        public async Task<bool> ExistsAsync(int id) =>
-            await _context.Set<T>().AnyAsync(e => e.Id == id);
+        public async Task<T?> GetByIdAsync(object id) =>
+            await _context.Set<T>().FindAsync(id);
     }
 }

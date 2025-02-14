@@ -1,5 +1,4 @@
-﻿using CatalogWebApiSystem.Domain.Models.Interfaces;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
@@ -9,15 +8,12 @@ namespace CatalogWebApiSystem.Domain.Models;
 
 // Classes anêmicas (só com propriedades - sem comportamento)
 [Table("Categories")]
-public class Category : IValidatableObject, IEntityBase
+public class Category : IValidatableObject
 {
     public Category()
     {
         Products = new Collection<Product>();
     }
-
-    [JsonIgnore]
-    public int Id => CategoryId;
 
     [Key]
     public int CategoryId { get; set; }

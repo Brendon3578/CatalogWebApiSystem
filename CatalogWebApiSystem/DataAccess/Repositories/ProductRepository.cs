@@ -13,6 +13,7 @@ namespace CatalogWebApiSystem.DataAccess.Repositories
 
         public async Task<IEnumerable<Product>> GetProductsByCategoryAsync(int categoryId) =>
             await _context.Set<Product>()
+                .AsNoTracking()
                 .Where(p => p.CategoryId == categoryId)
                 .ToListAsync();
     }

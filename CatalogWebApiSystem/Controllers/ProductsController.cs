@@ -12,17 +12,18 @@ namespace CatalogWebApiSystem.Controllers
     [ApiController]
     public class ProductsController : ControllerBase
     {
-        private readonly IProductRepository _repository;
+        private readonly IUnitOfWork _uow;
 
-        public ProductsController(IProductRepository repository)
+
+        public ProductsController(IUnitOfWork uow)
         {
-            _repository = repository;
+            _uow = uow;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
         {
-            var products = await _repository.GetAllAsync();
+            var products = await _uow.ProductRepository.GetAllAsync();
 
             return Ok(products);
 
@@ -34,7 +35,7 @@ namespace CatalogWebApiSystem.Controllers
             if (id < 1 || id > 9999) // teste de exceção
                 throw new Exception("Id is out of range");
 
-            var product = await _repository.GetAsync(p => p.ProductId == id);
+            var product = await _uow.ProductRepository.GetAsync(p => p.ProductId == id);
 
             if (product == null)
                 return NotFound();
@@ -48,7 +49,13 @@ namespace CatalogWebApiSystem.Controllers
             if (product is null)
                 return BadRequest();
 
-            await _repository.CreateAsync(product);
+            var categoryExists = (await _uow.CategoryRepository.GetByIdAsync(product.CategoryId)) is not null;
+
+            if (!categoryExists)
+                return BadRequest($"Category with id {product.CategoryId} not found!");
+
+            await _uow.ProductRepository.CreateAsync(product);
+            await _uow.CommitAsync();
 
             return CreatedAtAction(nameof(GetProduct), new { id = product.ProductId }, product);
         }
@@ -62,9 +69,16 @@ namespace CatalogWebApiSystem.Controllers
             if (id != product.ProductId)
                 return BadRequest("Product id don't match.");
 
+            var categoryExists = (await _uow.CategoryRepository.GetByIdAsync(product.CategoryId)) is not null;
+
+            if (!categoryExists)
+                return BadRequest($"Category with id {product.CategoryId} not found!");
+
+
             try
             {
-                await _repository.UpdateAsync(product);
+                await _uow.ProductRepository.UpdateAsync(product);
+                await _uow.CommitAsync();
             }
             catch (Exception)
             {
@@ -78,14 +92,15 @@ namespace CatalogWebApiSystem.Controllers
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
-            var product = await _repository.GetAsync(p => p.ProductId == id);
+            var product = await _uow.ProductRepository.GetAsync(p => p.ProductId == id);
 
             if (product == null)
                 return NotFound();
 
             try
             {
-                await _repository.DeleteAsync(product);
+                await _uow.ProductRepository.DeleteAsync(product);
+                await _uow.CommitAsync();
             }
             catch (Exception)
             {

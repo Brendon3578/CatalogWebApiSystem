@@ -1,15 +1,14 @@
-﻿using CatalogWebApiSystem.Domain.Models.Interfaces;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 
 namespace CatalogWebApiSystem.DataAccess.Interfaces
 {
-    public interface IRepository<T> where T : IEntityBase
+    public interface IRepository<T> where T : class
     {
         Task<IEnumerable<T>> GetAllAsync();
         Task<T?> GetAsync(Expression<Func<T, bool>> predicate);
         Task<T> CreateAsync(T entity);
         Task<T> UpdateAsync(T entity);
         Task<T> DeleteAsync(T entity);
-        Task<bool> ExistsAsync(int id);
+        Task<T?> GetByIdAsync(object id);
     }
 }
