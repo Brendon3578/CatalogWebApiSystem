@@ -1,4 +1,5 @@
-﻿using CatalogWebApiSystem.DataAccess.Interfaces;
+﻿using CatalogWebApiSystem.Application.DTOs;
+using CatalogWebApiSystem.DataAccess.Interfaces;
 using CatalogWebApiSystem.Domain.Models;
 using CatalogWebApiSystem.Filters;
 using Microsoft.AspNetCore.Mvc;
@@ -19,14 +20,22 @@ namespace CatalogWebApiSystem.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
+        public async Task<ActionResult<IEnumerable<CategoryDTO>>> GetCategories()
         {
             var categories = await _uow.CategoryRepository.GetAllAsync();
-            return Ok(categories);
+
+            var categoriesDto = categories.Select(c => new CategoryDTO()
+            {
+                CategoryId = c.CategoryId,
+                Name = c.Name,
+                ImageUrl = c.ImageUrl
+            });
+
+            return Ok(categoriesDto);
         }
 
         [HttpGet("{id:int}", Name = "GetCategory")]
-        public async Task<ActionResult<Category>> GetCategory(int id)
+        public async Task<ActionResult<CategoryDTO>> GetCategory(int id)
         {
             if (id < 1 || id > 9999) // teste de exceção
                 throw new Exception("Id is out of range");
@@ -36,7 +45,14 @@ namespace CatalogWebApiSystem.Controllers
             if (category == null)
                 return NotFound();
 
-            return Ok(category);
+            var categoryDto = new CategoryDTO()
+            {
+                CategoryId = category.CategoryId,
+                Name = category.Name,
+                ImageUrl = category.ImageUrl
+            };
+
+            return Ok(categoryDto);
         }
 
 
@@ -57,8 +73,15 @@ namespace CatalogWebApiSystem.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Category>> PostCategory(Category category)
+        public async Task<ActionResult<CategoryDTO>> PostCategory(CategoryDTO categoryDto)
         {
+            var category = new Category()
+            {
+                CategoryId = categoryDto.CategoryId,
+                Name = categoryDto.Name,
+                ImageUrl = categoryDto.ImageUrl
+            };
+
             await _uow.CategoryRepository.CreateAsync(category);
 
             await _uow.CommitAsync();
@@ -67,10 +90,17 @@ namespace CatalogWebApiSystem.Controllers
         }
 
         [HttpPut("{id:int}")] // constraint -> restrição
-        public async Task<IActionResult> PutCategory(int id, Category category)
+        public async Task<IActionResult> PutCategory(int id, CategoryDTO categoryDto)
         {
-            if (id != category.CategoryId)
+            if (id != categoryDto.CategoryId)
                 return BadRequest("Category id don't match.");
+
+            var category = new Category()
+            {
+                CategoryId = categoryDto.CategoryId,
+                Name = categoryDto.Name,
+                ImageUrl = categoryDto.ImageUrl
+            };
 
             try
             {
