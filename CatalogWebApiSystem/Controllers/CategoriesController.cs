@@ -1,6 +1,6 @@
 ﻿using CatalogWebApiSystem.Application.DTOs;
+using CatalogWebApiSystem.Application.DTOs.Mappings;
 using CatalogWebApiSystem.DataAccess.Interfaces;
-using CatalogWebApiSystem.Domain.Models;
 using CatalogWebApiSystem.Filters;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -24,12 +24,7 @@ namespace CatalogWebApiSystem.Controllers
         {
             var categories = await _uow.CategoryRepository.GetAllAsync();
 
-            var categoriesDto = categories.Select(c => new CategoryDTO()
-            {
-                CategoryId = c.CategoryId,
-                Name = c.Name,
-                ImageUrl = c.ImageUrl
-            });
+            var categoriesDto = categories.ToCategoryDTOList();
 
             return Ok(categoriesDto);
         }
@@ -45,12 +40,7 @@ namespace CatalogWebApiSystem.Controllers
             if (category == null)
                 return NotFound();
 
-            var categoryDto = new CategoryDTO()
-            {
-                CategoryId = category.CategoryId,
-                Name = category.Name,
-                ImageUrl = category.ImageUrl
-            };
+            var categoryDto = category.ToCategoryDTO();
 
             return Ok(categoryDto);
         }
@@ -75,12 +65,11 @@ namespace CatalogWebApiSystem.Controllers
         [HttpPost]
         public async Task<ActionResult<CategoryDTO>> PostCategory(CategoryDTO categoryDto)
         {
-            var category = new Category()
-            {
-                CategoryId = categoryDto.CategoryId,
-                Name = categoryDto.Name,
-                ImageUrl = categoryDto.ImageUrl
-            };
+
+            var category = categoryDto.ToCategory();
+
+            if (category is null)
+                return BadRequest("Category is null.");
 
             await _uow.CategoryRepository.CreateAsync(category);
 
@@ -95,12 +84,10 @@ namespace CatalogWebApiSystem.Controllers
             if (id != categoryDto.CategoryId)
                 return BadRequest("Category id don't match.");
 
-            var category = new Category()
-            {
-                CategoryId = categoryDto.CategoryId,
-                Name = categoryDto.Name,
-                ImageUrl = categoryDto.ImageUrl
-            };
+            var category = categoryDto.ToCategory();
+
+            if (category is null)
+                return BadRequest("Category is null.");
 
             try
             {
