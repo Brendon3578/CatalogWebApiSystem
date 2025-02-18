@@ -1,4 +1,6 @@
-﻿using CatalogWebApiSystem.DataAccess.Interfaces;
+﻿using AutoMapper;
+using CatalogWebApiSystem.Application.DTOs;
+using CatalogWebApiSystem.DataAccess.Interfaces;
 using CatalogWebApiSystem.Domain.Models;
 using CatalogWebApiSystem.Filters;
 using Microsoft.AspNetCore.Mvc;
@@ -13,24 +15,27 @@ namespace CatalogWebApiSystem.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly IUnitOfWork _uow;
+        private readonly IMapper _mapper;
 
 
-        public ProductsController(IUnitOfWork uow)
+        public ProductsController(IUnitOfWork uow, IMapper mapper)
         {
             _uow = uow;
+            _mapper = mapper;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
+        public async Task<ActionResult<IEnumerable<ProductDTO>>> GetProducts()
         {
             var products = await _uow.ProductRepository.GetAllAsync();
 
-            return Ok(products);
+            var productsDtos = _mapper.Map<IEnumerable<ProductDTO>>(products);
 
+            return Ok(productsDtos);
         }
 
         [HttpGet("{id:int}", Name = "GetProduct")]
-        public async Task<ActionResult<Product>> GetProduct(int id)
+        public async Task<ActionResult<ProductDTO>> GetProduct(int id)
         {
             if (id < 1 || id > 9999) // teste de exceção
                 throw new Exception("Id is out of range");
@@ -40,14 +45,19 @@ namespace CatalogWebApiSystem.Controllers
             if (product == null)
                 return NotFound();
 
-            return Ok(product);
+            var productDto = _mapper.Map<ProductDTO>(product);
+
+            return Ok(productDto);
         }
 
         [HttpPost]
-        public async Task<ActionResult<Product>> PostProduct(Product product)
+        public async Task<ActionResult<ProductDTO>> PostProduct(ProductDTO productDto)
         {
-            if (product is null)
+            if (productDto is null)
                 return BadRequest();
+
+            var product = _mapper.Map<Product>(productDto);
+
 
             var categoryExists = (await _uow.CategoryRepository.GetByIdAsync(product.CategoryId)) is not null;
 
@@ -61,10 +71,13 @@ namespace CatalogWebApiSystem.Controllers
         }
 
         [HttpPut("{id:int}")] // constraint -> restrição
-        public async Task<IActionResult> PutProduct(int id, Product product)
+        public async Task<ActionResult<ProductDTO>> PutProduct(int id, ProductDTO productDto)
         {
-            if (product is null)
+            if (productDto is null)
                 return BadRequest();
+
+            var product = _mapper.Map<Product>(productDto);
+
 
             if (id != product.ProductId)
                 return BadRequest("Product id don't match.");
@@ -86,7 +99,7 @@ namespace CatalogWebApiSystem.Controllers
             }
 
             //return NoContent();
-            return Ok(product);
+            return Ok(productDto);
         }
 
         [HttpDelete("{id:int}")]

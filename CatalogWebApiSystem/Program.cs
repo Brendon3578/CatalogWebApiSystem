@@ -1,3 +1,4 @@
+using CatalogWebApiSystem.Application.DTOs.Mappings;
 using CatalogWebApiSystem.DataAccess.Context;
 using CatalogWebApiSystem.DataAccess.Interfaces;
 using CatalogWebApiSystem.DataAccess.Repositories;
@@ -43,6 +44,8 @@ builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+builder.Services.AddAutoMapper(typeof(ModelDTOMappingProfile));
 
 var app = builder.Build();
 

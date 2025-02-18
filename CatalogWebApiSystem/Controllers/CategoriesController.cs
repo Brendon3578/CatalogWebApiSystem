@@ -1,6 +1,7 @@
-﻿using CatalogWebApiSystem.Application.DTOs;
-using CatalogWebApiSystem.Application.DTOs.Mappings;
+﻿using AutoMapper;
+using CatalogWebApiSystem.Application.DTOs;
 using CatalogWebApiSystem.DataAccess.Interfaces;
+using CatalogWebApiSystem.Domain.Models;
 using CatalogWebApiSystem.Filters;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,10 +14,12 @@ namespace CatalogWebApiSystem.Controllers
     public class CategoriesController : ControllerBase
     {
         private readonly IUnitOfWork _uow;
+        private readonly IMapper _mapper;
 
-        public CategoriesController(IUnitOfWork uow)
+        public CategoriesController(IUnitOfWork uow, IMapper mapper)
         {
             _uow = uow;
+            _mapper = mapper;
         }
 
         [HttpGet]
@@ -24,7 +27,7 @@ namespace CatalogWebApiSystem.Controllers
         {
             var categories = await _uow.CategoryRepository.GetAllAsync();
 
-            var categoriesDto = categories.ToCategoryDTOList();
+            var categoriesDto = _mapper.Map<IEnumerable<CategoryDTO>>(categories);
 
             return Ok(categoriesDto);
         }
@@ -37,17 +40,17 @@ namespace CatalogWebApiSystem.Controllers
 
             var category = await _uow.CategoryRepository.GetAsync(c => c.CategoryId == id);
 
-            if (category == null)
+            if (category is null)
                 return NotFound();
 
-            var categoryDto = category.ToCategoryDTO();
+            var categoryDto = _mapper.Map<CategoryDTO>(category);
 
             return Ok(categoryDto);
         }
 
 
         [HttpGet("{id:int}/Products")]
-        public async Task<IActionResult> GetProductsByCategory(int id)
+        public async Task<ActionResult<IEnumerable<ProductDTO>>> GetProductsByCategory(int id)
         {
             var categoryExists = await _uow.CategoryRepository.GetByIdAsync(id);
 
@@ -59,17 +62,19 @@ namespace CatalogWebApiSystem.Controllers
             if (products == null)
                 return NotFound();
 
-            return Ok(products);
+            var productsDtos = _mapper.Map<IEnumerable<ProductDTO>>(products);
+
+            return Ok(productsDtos);
         }
 
         [HttpPost]
         public async Task<ActionResult<CategoryDTO>> PostCategory(CategoryDTO categoryDto)
         {
 
-            var category = categoryDto.ToCategory();
-
-            if (category is null)
+            if (categoryDto is null)
                 return BadRequest("Category is null.");
+
+            var category = _mapper.Map<Category>(categoryDto);
 
             await _uow.CategoryRepository.CreateAsync(category);
 
@@ -84,7 +89,7 @@ namespace CatalogWebApiSystem.Controllers
             if (id != categoryDto.CategoryId)
                 return BadRequest("Category id don't match.");
 
-            var category = categoryDto.ToCategory();
+            var category = _mapper.Map<Category>(categoryDto);
 
             if (category is null)
                 return BadRequest("Category is null.");
