@@ -3,6 +3,7 @@ using CatalogWebApiSystem.Application.DTOs;
 using CatalogWebApiSystem.DataAccess.Interfaces;
 using CatalogWebApiSystem.Domain.Models;
 using CatalogWebApiSystem.Filters;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -57,6 +58,7 @@ namespace CatalogWebApiSystem.Controllers
                 return BadRequest();
 
             var product = _mapper.Map<Product>(productDto);
+            product.CreatedOn = DateTime.Now;
 
 
             var categoryExists = (await _uow.CategoryRepository.GetByIdAsync(product.CategoryId)) is not null;
@@ -78,7 +80,6 @@ namespace CatalogWebApiSystem.Controllers
 
             var product = _mapper.Map<Product>(productDto);
 
-
             if (id != product.ProductId)
                 return BadRequest("Product id don't match.");
 
@@ -86,7 +87,6 @@ namespace CatalogWebApiSystem.Controllers
 
             if (!categoryExists)
                 return BadRequest($"Category with id {product.CategoryId} not found!");
-
 
             try
             {
@@ -100,6 +100,41 @@ namespace CatalogWebApiSystem.Controllers
 
             //return NoContent();
             return Ok(productDto);
+        }
+
+        [HttpPatch("{id:int}/UpdatePartial")]
+        public async Task<ActionResult<ProductDTOUpdateResponse>> PatchProduct(int id, JsonPatchDocument<ProductDTOUpdateRequest> patchDocument)
+        {
+            if (patchDocument is null || id <= 0)
+                return BadRequest();
+
+            var product = await _uow.ProductRepository.GetAsync(p => p.ProductId == id);
+
+            if (product == null)
+                return NotFound();
+
+            var request = _mapper.Map<ProductDTOUpdateRequest>(product);
+
+            patchDocument.ApplyTo(request, ModelState);
+
+            if (!ModelState.IsValid || !TryValidateModel(request))
+                return ValidationProblem(ModelState);
+
+            _mapper.Map(request, product);
+
+            try
+            {
+                await _uow.ProductRepository.UpdateAsync(product);
+                await _uow.CommitAsync();
+            }
+            catch (Exception)
+            {
+                return BadRequest($"Fail when updating product with id {id}.");
+            }
+
+            var response = _mapper.Map<ProductDTOUpdateResponse>(product);
+
+            return Ok(response);
         }
 
         [HttpDelete("{id:int}")]

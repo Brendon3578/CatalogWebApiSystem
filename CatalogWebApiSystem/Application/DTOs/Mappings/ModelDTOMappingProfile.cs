@@ -7,8 +7,11 @@ namespace CatalogWebApiSystem.Application.DTOs.Mappings
     {
         public ModelDTOMappingProfile()
         {
-            CreateMap<Product, ProductDTO>().ReverseMap();
             CreateMap<Category, CategoryDTO>().ReverseMap();
+
+            CreateMap<Product, ProductDTO>().ReverseMap();
+            CreateMap<Product, ProductDTOUpdateRequest>().ReverseMap();
+            CreateMap<Product, ProductDTOUpdateResponse>().ReverseMap();
         }
     }
 }
