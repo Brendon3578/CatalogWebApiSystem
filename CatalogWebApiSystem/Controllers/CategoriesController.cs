@@ -90,7 +90,9 @@ namespace CatalogWebApiSystem.Controllers
 
             await _uow.CommitAsync();
 
-            return CreatedAtAction(nameof(GetCategory), new { id = category.CategoryId }, category);
+            var createdCategoryDto = _mapper.Map<CategoryDTO>(category);
+
+            return CreatedAtAction(nameof(GetCategory), new { id = createdCategoryDto.CategoryId }, createdCategoryDto);
         }
 
         [HttpPut("{id:int}")] // constraint -> restrição

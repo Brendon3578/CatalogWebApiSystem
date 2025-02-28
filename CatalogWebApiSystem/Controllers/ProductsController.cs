@@ -71,7 +71,9 @@ namespace CatalogWebApiSystem.Controllers
             await _uow.ProductRepository.CreateAsync(product);
             await _uow.CommitAsync();
 
-            return CreatedAtAction(nameof(GetProduct), new { id = product.ProductId }, product);
+            var createdProductDto = _mapper.Map<ProductDTO>(product);
+
+            return CreatedAtAction(nameof(GetProduct), new { id = createdProductDto.ProductId }, createdProductDto);
         }
 
         [HttpPut("{id:int}")] // constraint -> restrição
