@@ -1,4 +1,5 @@
-﻿using CatalogWebApiSystem.DataAccess.Context;
+﻿using CatalogWebApiSystem.Application.Pagination;
+using CatalogWebApiSystem.DataAccess.Context;
 using CatalogWebApiSystem.DataAccess.Interfaces;
 using CatalogWebApiSystem.Domain.Models;
 using Microsoft.EntityFrameworkCore;
@@ -15,6 +16,15 @@ namespace CatalogWebApiSystem.DataAccess.Repositories
             await _context.Set<Product>()
                 .AsNoTracking()
                 .Where(p => p.CategoryId == categoryId)
+                .ToListAsync();
+
+        public async Task<IEnumerable<Product>> GetProductsByCategoryAsync(int categoryId, ProductParameters productParams) =>
+            await _context.Set<Product>()
+                .AsNoTracking()
+                .Where(p => p.CategoryId == categoryId)
+                .OrderBy(p => p.Name)
+                .Skip((productParams.PageNumber - 1) * productParams.PageSize)
+                .Take(productParams.PageSize)
                 .ToListAsync();
     }
 }

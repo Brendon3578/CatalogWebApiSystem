@@ -51,6 +51,8 @@ namespace CatalogWebApiSystem.Controllers
             return Ok(productDto);
         }
 
+
+
         [HttpPost]
         public async Task<ActionResult<ProductDTO>> PostProduct(ProductDTO productDto)
         {

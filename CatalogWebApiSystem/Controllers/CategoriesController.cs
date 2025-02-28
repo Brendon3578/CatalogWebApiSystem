@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CatalogWebApiSystem.Application.DTOs;
+using CatalogWebApiSystem.Application.Pagination;
 using CatalogWebApiSystem.DataAccess.Interfaces;
 using CatalogWebApiSystem.Domain.Models;
 using CatalogWebApiSystem.Filters;
@@ -52,15 +53,24 @@ namespace CatalogWebApiSystem.Controllers
         [HttpGet("{id:int}/Products")]
         public async Task<ActionResult<IEnumerable<ProductDTO>>> GetProductsByCategory(int id)
         {
-            var categoryExists = await _uow.CategoryRepository.GetByIdAsync(id);
-
-            if (categoryExists is null)
+            if (await CategoryExists(id) == false)
                 return NotFound();
 
             var products = await _uow.ProductRepository.GetProductsByCategoryAsync(id);
 
-            if (products == null)
+            var productsDtos = _mapper.Map<IEnumerable<ProductDTO>>(products);
+
+            return Ok(productsDtos);
+        }
+
+
+        [HttpGet("{id:int}/Products/pagination")]
+        public async Task<ActionResult<IEnumerable<ProductDTO>>> GetProductsByCategoryAsync(int id, [FromQuery] ProductParameters productParams)
+        {
+            if (await CategoryExists(id) == false)
                 return NotFound();
+
+            var products = await _uow.ProductRepository.GetProductsByCategoryAsync(id, productParams);
 
             var productsDtos = _mapper.Map<IEnumerable<ProductDTO>>(products);
 
@@ -126,6 +136,9 @@ namespace CatalogWebApiSystem.Controllers
 
             return NoContent();
         }
+
+        private async Task<bool> CategoryExists(int id) =>
+            await _uow.CategoryRepository.GetByIdAsync(id) is not null;
 
     }
 }
