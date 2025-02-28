@@ -6,6 +6,7 @@ using CatalogWebApiSystem.Domain.Models;
 using CatalogWebApiSystem.Filters;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace CatalogWebApiSystem.Controllers
 {
@@ -71,6 +72,15 @@ namespace CatalogWebApiSystem.Controllers
                 return NotFound();
 
             var products = await _uow.ProductRepository.GetProductsByCategoryAsync(id, productParams);
+
+            var metadata = PaginationResponseHeader.ToPaginationResponseHeader(products);
+
+            var jsonMetadata = JsonSerializer.Serialize(metadata, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
+
+            Response.Headers.Append("X-Pagination", jsonMetadata);
 
             var productsDtos = _mapper.Map<IEnumerable<ProductDTO>>(products);
 

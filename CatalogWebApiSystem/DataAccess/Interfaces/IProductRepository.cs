@@ -5,7 +5,8 @@ namespace CatalogWebApiSystem.DataAccess.Interfaces
 {
     public interface IProductRepository : IRepository<Product>
     {
-        Task<IEnumerable<Product>> GetProductsByCategoryAsync(int categoryId, ProductParameters productParams);
+        //Task<IEnumerable<Product>> GetProductsByCategoryAsync(int categoryId, ProductParameters productParams);
+        Task<PagedList<Product>> GetProductsByCategoryAsync(int categoryId, ProductParameters productParams);
         Task<IEnumerable<Product>> GetProductsByCategoryAsync(int categoryId);
     }
 }
