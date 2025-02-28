@@ -6,7 +6,7 @@ using CatalogWebApiSystem.Extensions;
 using CatalogWebApiSystem.Filters;
 using CatalogWebApiSystem.Logging;
 using Microsoft.EntityFrameworkCore;
-using Scalar.AspNetCore;
+using SwaggerThemes;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -55,21 +55,20 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    //app.UseSwagger();
-    //app.UseSwaggerUI();
-    var scalarTitle = builder.Configuration["ScalarConfiguration:Title"] ?? "Catalog API";
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
+    {
+        var apiTitle = builder.Configuration["SwaggerConfiguration:Title"] ?? "Catalog API";
+        var theme = @"/swagger/SwaggerDark.css";
 
-    app.UseSwagger(options =>
-    {
-        options.RouteTemplate = "/openapi/{documentName}.json";
+        options.DocumentTitle = apiTitle;
+        options.InjectStylesheet(theme);
     });
-    app.MapScalarApiReference(configureOptions =>
-    {
-        configureOptions.WithTitle(scalarTitle);
-        configureOptions.Theme = ScalarTheme.Saturn;
-    });
+
     app.ConfigureExceptionHandler();
 }
+
+app.UseStaticFiles();
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
