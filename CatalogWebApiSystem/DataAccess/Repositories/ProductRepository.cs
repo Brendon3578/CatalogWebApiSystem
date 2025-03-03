@@ -24,10 +24,10 @@ namespace CatalogWebApiSystem.DataAccess.Repositories
                 .AsNoTracking()
                 .Where(p => p.CategoryId == categoryId)
                 .OrderBy(p => p.Name)
+                .ThenBy(p => p.Price)
                 .AsQueryable();
 
-            var ordenedProducts = await PagedList<Product>.ToPagedListAsync(products, productParams.PageNumber, productParams.PageSize);
-            return ordenedProducts;
+            return await PagedList<Product>.ToPagedListAsync(products, productParams.PageNumber, productParams.PageSize);
         }
 
         //public async Task<IEnumerable<Product>> GetProductsByCategoryAsync(int categoryId, ProductParameters productParams) =>

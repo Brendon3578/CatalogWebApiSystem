@@ -1,6 +1,6 @@
 ﻿namespace CatalogWebApiSystem.Application.Pagination
 {
-    public class ProductParameters : PaginationParameters
+    public class CategoryParameters : PaginationParameters
     {
 
     }

@@ -24,10 +24,20 @@ namespace CatalogWebApiSystem.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<CategoryDTO>>> GetCategories()
+        [HttpGet("Pagination")]
+        public async Task<ActionResult<IEnumerable<CategoryDTO>>> GetCategories([FromQuery] CategoryParameters categoryParams)
         {
-            var categories = await _uow.CategoryRepository.GetAllAsync();
+            var categories = await _uow.CategoryRepository.GetCategoriesAsync(categoryParams);
+
+            var metadata = PaginationHeader.FromPagedList(categories);
+
+            var jsonMetadata = JsonSerializer.Serialize(metadata, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
+
+            Response.Headers.Append("X-Pagination", jsonMetadata);
+
 
             var categoriesDto = _mapper.Map<IEnumerable<CategoryDTO>>(categories);
 
@@ -65,7 +75,7 @@ namespace CatalogWebApiSystem.Controllers
         }
 
 
-        [HttpGet("{id:int}/Products/pagination")]
+        [HttpGet("{id:int}/Products/Pagination")]
         public async Task<ActionResult<IEnumerable<ProductDTO>>> GetProductsByCategoryAsync(int id, [FromQuery] ProductParameters productParams)
         {
             if (await CategoryExists(id) == false)
@@ -73,7 +83,7 @@ namespace CatalogWebApiSystem.Controllers
 
             var products = await _uow.ProductRepository.GetProductsByCategoryAsync(id, productParams);
 
-            var metadata = PaginationResponseHeader.ToPaginationResponseHeader(products);
+            var metadata = PaginationHeader.FromPagedList(products);
 
             var jsonMetadata = JsonSerializer.Serialize(metadata, new JsonSerializerOptions
             {

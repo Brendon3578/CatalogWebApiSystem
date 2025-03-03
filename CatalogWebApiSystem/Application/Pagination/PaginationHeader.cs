@@ -1,6 +1,6 @@
 ﻿namespace CatalogWebApiSystem.Application.Pagination
 {
-    public class PaginationResponseHeader
+    public class PaginationHeader
     {
         public int TotalCount { get; set; }
         public int PageSize { get; set; }
@@ -9,7 +9,7 @@
         public bool HasNext { get; set; }
         public bool HasPrevious { get; set; }
 
-        public PaginationResponseHeader(int totalCount, int pageSize, int currentPage, int totalPages, bool hasNext, bool hasPrevious)
+        public PaginationHeader(int totalCount, int pageSize, int currentPage, int totalPages, bool hasNext, bool hasPrevious)
         {
             TotalCount = totalCount;
             PageSize = pageSize;
@@ -19,9 +19,9 @@
             HasPrevious = hasPrevious;
         }
 
-        public static PaginationResponseHeader ToPaginationResponseHeader<T>(PagedList<T> pagedList) where T : class
+        public static PaginationHeader FromPagedList<T>(PagedList<T> pagedList) where T : class
         {
-            return new PaginationResponseHeader
+            return new PaginationHeader
             (
                 pagedList.TotalCount,
                 pagedList.PageSize,
