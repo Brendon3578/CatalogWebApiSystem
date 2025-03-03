@@ -41,5 +41,22 @@ namespace CatalogWebApiSystem.DataAccess.Repositories
 
             return await PagedList<Product>.ToPagedListAsync(products, productParams.PageNumber, productParams.PageSize);
         }
+
+        public async Task<PagedList<Product>> GetProductsByPriceRangeAsync(ProductFilterPriceParemeter productParams)
+        {
+            var products = _context.Set<Product>()
+                .AsNoTracking()
+                .OrderBy(p => p.Name)
+                .AsQueryable();
+
+            if (productParams.MinPrice.HasValue)
+                products = products.Where(p => p.Price >= productParams.MinPrice);
+            if (productParams.MaxPrice.HasValue)
+                products = products.Where(p => p.Price <= productParams.MaxPrice);
+            if (productParams.EqualsPrice.HasValue)
+                products = products.Where(p => p.Price == productParams.EqualsPrice);
+
+            return await PagedList<Product>.ToPagedListAsync(products, productParams.PageNumber, productParams.PageSize);
+        }
     }
 }

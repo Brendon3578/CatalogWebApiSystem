@@ -26,7 +26,7 @@ namespace CatalogWebApiSystem.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet()]
+        [HttpGet("Pagination")]
         public async Task<ActionResult<IEnumerable<ProductDTO>>> GetProducts([FromQuery] ProductParameters productParams)
         {
             var products = await _uow.ProductRepository.GetProductsAsync(productParams);
@@ -37,6 +37,19 @@ namespace CatalogWebApiSystem.Controllers
 
             return Ok(productsDtos);
         }
+
+        [HttpGet("Filter/Price/Pagination")]
+        public async Task<ActionResult<IEnumerable<ProductDTO>>> GetProductsByPriceRange([FromQuery] ProductFilterPriceParemeter productParams)
+        {
+            var products = await _uow.ProductRepository.GetProductsByPriceRangeAsync(productParams);
+
+            PaginationHeader.SetPaginationHeaderOnResponse(products, Response);
+
+            var productsDtos = _mapper.Map<IEnumerable<ProductDTO>>(products);
+
+            return Ok(productsDtos);
+        }
+
 
         [HttpGet("{id:int}", Name = "GetProduct")]
         public async Task<ActionResult<ProductDTO>> GetProduct(int id)
