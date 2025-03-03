@@ -7,6 +7,7 @@ namespace CatalogWebApiSystem.DataAccess.Interfaces
     {
         //Task<IEnumerable<Product>> GetProductsByCategoryAsync(int categoryId, ProductParameters productParams);
         Task<PagedList<Product>> GetProductsByCategoryAsync(int categoryId, ProductParameters productParams);
+        Task<PagedList<Product>> GetProductsAsync(ProductParameters productParams);
         Task<IEnumerable<Product>> GetProductsByCategoryAsync(int categoryId);
     }
 }

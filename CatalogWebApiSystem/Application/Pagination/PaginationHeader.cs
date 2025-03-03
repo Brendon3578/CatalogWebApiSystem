@@ -1,4 +1,6 @@
-﻿namespace CatalogWebApiSystem.Application.Pagination
+﻿using System.Text.Json;
+
+namespace CatalogWebApiSystem.Application.Pagination
 {
     public class PaginationHeader
     {
@@ -19,9 +21,10 @@
             HasPrevious = hasPrevious;
         }
 
-        public static PaginationHeader FromPagedList<T>(PagedList<T> pagedList) where T : class
+
+        public static void SetPaginationHeaderOnResponse<T>(PagedList<T> pagedList, HttpResponse response) where T : class
         {
-            return new PaginationHeader
+            var metadata = new PaginationHeader
             (
                 pagedList.TotalCount,
                 pagedList.PageSize,
@@ -30,8 +33,13 @@
                 pagedList.HasNext,
                 pagedList.HasPrevious
             );
+
+            var jsonMetadata = JsonSerializer.Serialize(metadata, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
+
+            response.Headers.Append("X-Pagination", jsonMetadata);
         }
-
-
     }
 }

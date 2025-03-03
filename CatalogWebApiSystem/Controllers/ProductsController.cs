@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CatalogWebApiSystem.Application.DTOs;
+using CatalogWebApiSystem.Application.Pagination;
 using CatalogWebApiSystem.DataAccess.Interfaces;
 using CatalogWebApiSystem.Domain.Models;
 using CatalogWebApiSystem.Filters;
@@ -25,10 +26,12 @@ namespace CatalogWebApiSystem.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProductDTO>>> GetProducts()
+        [HttpGet()]
+        public async Task<ActionResult<IEnumerable<ProductDTO>>> GetProducts([FromQuery] ProductParameters productParams)
         {
-            var products = await _uow.ProductRepository.GetAllAsync();
+            var products = await _uow.ProductRepository.GetProductsAsync(productParams);
+
+            PaginationHeader.SetPaginationHeaderOnResponse(products, Response);
 
             var productsDtos = _mapper.Map<IEnumerable<ProductDTO>>(products);
 

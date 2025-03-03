@@ -6,7 +6,6 @@ using CatalogWebApiSystem.Domain.Models;
 using CatalogWebApiSystem.Filters;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Text.Json;
 
 namespace CatalogWebApiSystem.Controllers
 {
@@ -29,15 +28,7 @@ namespace CatalogWebApiSystem.Controllers
         {
             var categories = await _uow.CategoryRepository.GetCategoriesAsync(categoryParams);
 
-            var metadata = PaginationHeader.FromPagedList(categories);
-
-            var jsonMetadata = JsonSerializer.Serialize(metadata, new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            });
-
-            Response.Headers.Append("X-Pagination", jsonMetadata);
-
+            PaginationHeader.SetPaginationHeaderOnResponse(categories, Response);
 
             var categoriesDto = _mapper.Map<IEnumerable<CategoryDTO>>(categories);
 
@@ -83,14 +74,7 @@ namespace CatalogWebApiSystem.Controllers
 
             var products = await _uow.ProductRepository.GetProductsByCategoryAsync(id, productParams);
 
-            var metadata = PaginationHeader.FromPagedList(products);
-
-            var jsonMetadata = JsonSerializer.Serialize(metadata, new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            });
-
-            Response.Headers.Append("X-Pagination", jsonMetadata);
+            PaginationHeader.SetPaginationHeaderOnResponse(products, Response);
 
             var productsDtos = _mapper.Map<IEnumerable<ProductDTO>>(products);
 
@@ -161,6 +145,5 @@ namespace CatalogWebApiSystem.Controllers
 
         private async Task<bool> CategoryExists(int id) =>
             await _uow.CategoryRepository.GetByIdAsync(id) is not null;
-
     }
 }

@@ -30,15 +30,16 @@ namespace CatalogWebApiSystem.DataAccess.Repositories
             return await PagedList<Product>.ToPagedListAsync(products, productParams.PageNumber, productParams.PageSize);
         }
 
-        //public async Task<IEnumerable<Product>> GetProductsByCategoryAsync(int categoryId, ProductParameters productParams) =>
-        //    await _context.Set<Product>()
-        //        .AsNoTracking()
-        //        .Where(p => p.CategoryId == categoryId)
-        //        .OrderBy(p => p.Name)
-        //        .Skip((productParams.PageNumber - 1) * productParams.PageSize)
-        //        .Take(productParams.PageSize)
-        //        .ToListAsync();
 
+        public async Task<PagedList<Product>> GetProductsAsync(ProductParameters productParams)
+        {
+            var products = _context.Set<Product>()
+                .AsNoTracking()
+                .OrderBy(p => p.Name)
+                .ThenBy(p => p.Price)
+                .AsQueryable();
 
+            return await PagedList<Product>.ToPagedListAsync(products, productParams.PageNumber, productParams.PageSize);
+        }
     }
 }

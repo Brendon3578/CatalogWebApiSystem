@@ -15,9 +15,9 @@ namespace CatalogWebApiSystem.DataAccess.Repositories
         public async Task<PagedList<Category>> GetCategoriesAsync(CategoryParameters categoryParameters)
         {
             var categories = _context.Set<Category>()
-            .AsNoTracking()
-            .OrderBy(c => c.Name)
-            .AsQueryable();
+                .AsNoTracking()
+                .OrderBy(c => c.Name)
+                .AsQueryable();
 
             return await PagedList<Category>.ToPagedListAsync(categories, categoryParameters.PageNumber, categoryParameters.PageSize);
         }
