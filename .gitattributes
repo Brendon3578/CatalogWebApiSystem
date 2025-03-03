@@ -4,6 +4,11 @@
 * text=auto
 
 ###############################################################################
+# Set languages displayed on GitHub repository's language list statistics
+###############################################################################
+*.css linguist-vendored
+
+###############################################################################
 # Set default behavior for command prompt diff.
 #
 # This is need for earlier builds of msysgit that does not have it on by
