@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace CatalogWebApiSystem.Application.Pagination
+namespace CatalogWebApiSystem.Application.Pagination.Product
 {
     public class ProductFilterPriceParemeter : PaginationParameters
     {

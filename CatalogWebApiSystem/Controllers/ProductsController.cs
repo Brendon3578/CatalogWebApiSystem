@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using CatalogWebApiSystem.Application.DTOs;
 using CatalogWebApiSystem.Application.Pagination;
+using CatalogWebApiSystem.Application.Pagination.Product;
 using CatalogWebApiSystem.DataAccess.Interfaces;
 using CatalogWebApiSystem.Domain.Models;
 using CatalogWebApiSystem.Filters;

@@ -1,4 +1,5 @@
 ﻿using CatalogWebApiSystem.Application.Pagination;
+using CatalogWebApiSystem.Application.Pagination.Product;
 using CatalogWebApiSystem.DataAccess.Context;
 using CatalogWebApiSystem.DataAccess.Interfaces;
 using CatalogWebApiSystem.Domain.Models;

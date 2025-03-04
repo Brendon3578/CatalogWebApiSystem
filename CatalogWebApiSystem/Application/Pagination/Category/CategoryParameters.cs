@@ -1,4 +1,4 @@
-﻿namespace CatalogWebApiSystem.Application.Pagination
+﻿namespace CatalogWebApiSystem.Application.Pagination.Category
 {
     public class CategoryParameters : PaginationParameters
     {

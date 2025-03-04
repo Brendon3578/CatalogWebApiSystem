@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using CatalogWebApiSystem.Application.DTOs;
 using CatalogWebApiSystem.Application.Pagination;
+using CatalogWebApiSystem.Application.Pagination.Category;
+using CatalogWebApiSystem.Application.Pagination.Product;
 using CatalogWebApiSystem.DataAccess.Interfaces;
 using CatalogWebApiSystem.Domain.Models;
 using CatalogWebApiSystem.Filters;
@@ -23,18 +25,6 @@ namespace CatalogWebApiSystem.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet("Pagination")]
-        public async Task<ActionResult<IEnumerable<CategoryDTO>>> GetCategories([FromQuery] CategoryParameters categoryParams)
-        {
-            var categories = await _uow.CategoryRepository.GetCategoriesAsync(categoryParams);
-
-            PaginationHeader.SetPaginationHeaderOnResponse(categories, Response);
-
-            var categoriesDto = _mapper.Map<IEnumerable<CategoryDTO>>(categories);
-
-            return Ok(categoriesDto);
-        }
-
         [HttpGet("{id:int}", Name = "GetCategory")]
         public async Task<ActionResult<CategoryDTO>> GetCategory(int id)
         {
@@ -51,6 +41,29 @@ namespace CatalogWebApiSystem.Controllers
             return Ok(categoryDto);
         }
 
+        [HttpGet("Pagination")]
+        public async Task<ActionResult<IEnumerable<CategoryDTO>>> GetCategories([FromQuery] CategoryParameters categoryParams)
+        {
+            var categories = await _uow.CategoryRepository.GetCategoriesAsync(categoryParams);
+
+            PaginationHeader.SetPaginationHeaderOnResponse(categories, Response);
+
+            var categoriesDto = _mapper.Map<IEnumerable<CategoryDTO>>(categories);
+
+            return Ok(categoriesDto);
+        }
+
+        [HttpGet("Filter/Name/Pagination")]
+        public async Task<ActionResult<IEnumerable<CategoryDTO>>> GetCategoriesByName([FromQuery] CategoryFilterNameParameter categoryParams)
+        {
+            var categories = await _uow.CategoryRepository.GetCategoriesByNameAsync(categoryParams);
+
+            PaginationHeader.SetPaginationHeaderOnResponse(categories, Response);
+
+            var categoriesDto = _mapper.Map<IEnumerable<CategoryDTO>>(categories);
+
+            return Ok(categoriesDto);
+        }
 
         [HttpGet("{id:int}/Products")]
         public async Task<ActionResult<IEnumerable<ProductDTO>>> GetProductsByCategory(int id)
