@@ -1,9 +1,10 @@
 ﻿using CatalogWebApiSystem.Domain.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace CatalogWebApiSystem.DataAccess.Context;
 
-public class CatalogWebApiSystemContext : DbContext
+public class CatalogWebApiSystemContext : IdentityDbContext
 {
     public CatalogWebApiSystemContext(DbContextOptions<CatalogWebApiSystemContext> options) : base(options)
     {

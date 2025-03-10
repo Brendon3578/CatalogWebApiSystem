@@ -5,6 +5,7 @@ using CatalogWebApiSystem.DataAccess.Repositories;
 using CatalogWebApiSystem.Extensions;
 using CatalogWebApiSystem.Filters;
 using CatalogWebApiSystem.Logging;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SwaggerThemes;
 using System.Text.Json.Serialization;
@@ -13,7 +14,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Configuração de Serviços (Startup -> ConfigureServices)
 
-// Add services to the container.
+// Controller configuration
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add(typeof(ApiExceptionFilter));
@@ -24,28 +25,44 @@ builder.Services.AddControllers(options =>
 })
 .AddNewtonsoftJson();
 
+// Swagger configuration
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Identity configuration
+builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+    .AddEntityFrameworkStores<CatalogWebApiSystemContext>()
+    .AddDefaultTokenProviders();
+
+// Authentication and Authorization configuration
+builder.Services.AddAuthorization();
+builder.Services.AddAuthentication("Bearer").AddJwtBearer("Bearer");
+
+
+// Database configuration
 var mySqlConnection = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<CatalogWebApiSystemContext>(options =>
     options.UseMySql(mySqlConnection,
     ServerVersion.AutoDetect(mySqlConnection)));
 
+// Logging configuration
 builder.Logging.AddProvider(new CustomLoggerProvider(
     new CustomLoggerProviderConfiguration { LogLevel = LogLevel.Information }
 ));
 
 builder.Services.AddScoped<ApiLoggingResultFilter>();
 
+// Repository configuration
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
+// Unit of Work configuration
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+// AutoMapper configuration
 builder.Services.AddAutoMapper(typeof(ModelDTOMappingProfile));
 
 var app = builder.Build();
@@ -68,6 +85,7 @@ if (app.Environment.IsDevelopment())
     app.ConfigureExceptionHandler();
 }
 
+// Static Files for Swagger configuration
 app.UseStaticFiles();
 
 app.UseHttpsRedirection();
