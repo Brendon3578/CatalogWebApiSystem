@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CatalogWebApiSystem.DataAccess.Context;
 
-public class CatalogWebApiSystemContext : IdentityDbContext
+public class CatalogWebApiSystemContext : IdentityDbContext<ApplicationUser>
 {
     public CatalogWebApiSystemContext(DbContextOptions<CatalogWebApiSystemContext> options) : base(options)
     {
@@ -12,4 +12,9 @@ public class CatalogWebApiSystemContext : IdentityDbContext
 
     public DbSet<Category> Categories { get; set; }
     public DbSet<Product> Products { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+        base.OnModelCreating(builder);
+    }
 }
