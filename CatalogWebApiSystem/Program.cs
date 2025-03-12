@@ -6,6 +6,7 @@ using CatalogWebApiSystem.Domain.Models;
 using CatalogWebApiSystem.Extensions;
 using CatalogWebApiSystem.Filters;
 using CatalogWebApiSystem.Logging;
+using CatalogWebApiSystem.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -89,8 +90,12 @@ builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 // Unit of Work configuration
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+// Internal Services configuration
+builder.Services.AddScoped<ITokenService, TokenService>();
+
 // AutoMapper configuration
 builder.Services.AddAutoMapper(typeof(ModelDTOMappingProfile));
+
 
 var app = builder.Build();
 
