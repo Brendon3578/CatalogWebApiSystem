@@ -89,10 +89,14 @@ namespace CatalogWebApiSystem.Controllers
             var result = await _userManager.CreateAsync(user, dto.Password!);
 
             if (!result.Succeeded)
+            {
+                var errorMessages = result.Errors.Select(result => result.Description);
+
                 return StatusCode(
                     StatusCodes.Status500InternalServerError,
-                    new ResponseDTO { Status = "Error", Message = "User creation failed! Please check user details and try again." }
+                    new ResponseDTO { Status = "Error", Message = $"User creation failed! Please check user details and try again: \n{string.Join("\n", errorMessages)}" }
                 );
+            }
 
             return Ok(new ResponseDTO { Status = "Success", Message = "User created successfully!" });
         }

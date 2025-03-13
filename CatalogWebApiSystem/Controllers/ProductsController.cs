@@ -5,6 +5,7 @@ using CatalogWebApiSystem.Application.Pagination.Product;
 using CatalogWebApiSystem.DataAccess.Interfaces;
 using CatalogWebApiSystem.Domain.Models;
 using CatalogWebApiSystem.Filters;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CatalogWebApiSystem.Controllers
 {
+    [Authorize]
     [ServiceFilter(typeof(ApiLoggingResultFilter))]
     [Route("[controller]")]
     [ApiController]
