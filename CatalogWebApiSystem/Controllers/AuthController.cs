@@ -17,13 +17,16 @@ namespace CatalogWebApiSystem.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _config;
+        private readonly ILogger<AuthController> _logger;
 
-        public AuthController(ITokenService tokenService, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration config)
+
+        public AuthController(ITokenService tokenService, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration config, ILogger<AuthController> logger)
         {
             _tokenService = tokenService;
             _userManager = userManager;
             _roleManager = roleManager;
             _config = config;
+            _logger = logger;
         }
 
         [HttpPost]
@@ -146,6 +149,65 @@ namespace CatalogWebApiSystem.Controllers
             await _userManager.UpdateAsync(user);
 
             return NoContent();
+        }
+
+        [HttpPost]
+        [Route("CreateRole")]
+        public async Task<IActionResult> CreateRole(string roleName)
+        {
+            var roleExists = await _roleManager.RoleExistsAsync(roleName);
+
+            if (roleExists)
+                return StatusCode(
+                    StatusCodes.Status500InternalServerError,
+                    new ResponseDTO { Status = "Error", Message = "Role already exists!" }
+                );
+
+            var role = new IdentityRole(roleName);
+            var result = await _roleManager.CreateAsync(role);
+
+            if (!result.Succeeded)
+            {
+                _logger.LogInformation(2, "Error when creating new role!");
+                return StatusCode(StatusCodes.Status400BadRequest, new ResponseDTO { Status = "Error", Message = $"Issue adding the new {roleName} role!" });
+            }
+
+            _logger.LogInformation(1, "Role {roleName} created successfully!", roleName);
+            return StatusCode(StatusCodes.Status201Created, new ResponseDTO { Status = "Success", Message = $"Role {roleName} created successfully!" });
+        }
+
+        [HttpPost]
+        [Route("AddUserToRole")]
+        public async Task<IActionResult> AddUserToRole(string email, string roleName)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user is null)
+                return StatusCode(
+                    StatusCodes.Status404NotFound,
+                    new ResponseDTO { Status = "Error", Message = "User not found!" }
+                );
+
+            var roleExists = await _roleManager.RoleExistsAsync(roleName);
+            if (!roleExists)
+                return StatusCode(
+                    StatusCodes.Status404NotFound,
+                    new ResponseDTO { Status = "Error", Message = "Role not found!" }
+                );
+
+            var result = await _userManager.AddToRoleAsync(user, roleName);
+
+            if (!result.Succeeded)
+            {
+                var errorMessages = result.Errors.Select(result => result.Description);
+
+                return StatusCode(
+                    StatusCodes.Status500InternalServerError,
+                    new ResponseDTO { Status = "Error", Message = $"Failed to add user to role! Please check user details and try again: \n{string.Join("\n", errorMessages)}" }
+                );
+            }
+
+            return Ok(new ResponseDTO { Status = "Success", Message = "User added to role successfully!" });
         }
 
         private static bool IsValidRefreshToken(ApplicationUser user, string refreshToken)
