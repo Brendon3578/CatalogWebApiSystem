@@ -42,6 +42,7 @@ namespace CatalogWebApiSystem.Controllers
 
             var authClaims = new List<Claim>
                 {
+                    new("id", user.UserName!),
                     new(ClaimTypes.Name, user.UserName!),
                     new(ClaimTypes.Email, user.Email!),
                     new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
@@ -119,7 +120,7 @@ namespace CatalogWebApiSystem.Controllers
             var user = await _userManager.FindByNameAsync(principal.Identity.Name);
 
             if (user is null || !IsValidRefreshToken(user, token.RefreshToken))
-                return Unauthorized("Invalid access token or refresh token");
+                return Forbid("Invalid access token or refresh token");
 
             var newAccessToken = _tokenService.GenerateAccessToken(principal.Claims.ToList(), _config);
 
@@ -153,6 +154,7 @@ namespace CatalogWebApiSystem.Controllers
 
         [HttpPost]
         [Route("CreateRole")]
+        [Authorize(Policy = "SuperAdminOnly")]
         public async Task<IActionResult> CreateRole(string roleName)
         {
             var roleExists = await _roleManager.RoleExistsAsync(roleName);
@@ -203,11 +205,11 @@ namespace CatalogWebApiSystem.Controllers
 
                 return StatusCode(
                     StatusCodes.Status500InternalServerError,
-                    new ResponseDTO { Status = "Error", Message = $"Failed to add user to role! Please check user details and try again: \n{string.Join("\n", errorMessages)}" }
+                    new ResponseDTO { Status = "Error", Message = $"Failed to add user to role! {string.Join("\n", errorMessages)}" }
                 );
             }
 
-            return Ok(new ResponseDTO { Status = "Success", Message = "User added to role successfully!" });
+            return Ok(new ResponseDTO { Status = "Success", Message = $"User {email} added to role {roleName} successfully!" });
         }
 
         private static bool IsValidRefreshToken(ApplicationUser user, string refreshToken)

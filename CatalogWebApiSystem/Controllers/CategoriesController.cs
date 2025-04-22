@@ -97,6 +97,7 @@ namespace CatalogWebApiSystem.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "CategoryManager")]
         public async Task<ActionResult<CategoryDTO>> PostCategory(CategoryDTO categoryDto)
         {
 
@@ -115,6 +116,7 @@ namespace CatalogWebApiSystem.Controllers
         }
 
         [HttpPut("{id:int}")] // constraint -> restrição
+        [Authorize(Policy = "CategoryManager")]
         public async Task<IActionResult> PutCategory(int id, CategoryDTO categoryDto)
         {
             if (id != categoryDto.CategoryId)
@@ -145,6 +147,7 @@ namespace CatalogWebApiSystem.Controllers
         }
 
         [HttpDelete("{id:int}")]
+        [Authorize(Policy = "CategoryManager")]
         public async Task<IActionResult> DeleteCategory(int id)
         {
             var category = await _uow.CategoryRepository.GetAsync(c => c.CategoryId == id);

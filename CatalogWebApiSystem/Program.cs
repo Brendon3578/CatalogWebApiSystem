@@ -78,7 +78,6 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
 var secretKey = builder.Configuration["JWT:SecretKey"]
     ?? throw new ArgumentException("Invalid secret key!!");
 
-builder.Services.AddAuthorization();
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -99,6 +98,19 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
     };
 });
+
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"))
+    .AddPolicy("SuperAdminOnly", policy => policy.RequireRole("SuperAdmin")
+        .RequireClaim("SuperAdmin", "true"))
+    .AddPolicy("UserOnly", policy => policy.RequireRole("User"))
+    .AddPolicy("ReadProducts",
+        policy => policy.RequireAssertion(context =>
+            context.User.HasClaim(claim => claim.Type == "role") ||
+            context.User.IsInRole("User")))
+    .AddPolicy("CategoryManager",
+        policy => policy.RequireRole("CategoryManager"));
+
 
 
 // Database configuration
