@@ -35,7 +35,10 @@ namespace CatalogWebApiSystem.Controllers
         {
             var user = await _userManager.FindByNameAsync(dto.Username!);
 
-            if (user is null || await _userManager.CheckPasswordAsync(user, dto.Password!) == false)
+            if (user is null)
+                return NotFound();
+
+            if (await _userManager.CheckPasswordAsync(user, dto.Password!) == false)
                 return Unauthorized();
 
             var userRoles = await _userManager.GetRolesAsync(user);

@@ -142,6 +142,18 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddAutoMapper(typeof(ModelDTOMappingProfile));
 
 
+// CORS configuration
+var originsWithAllowedAccess = "_originsWithAllowedAccess";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: originsWithAllowedAccess,
+        policy =>
+        {
+            policy.WithOrigins("https://apirequest.io");
+        });
+});
+
+
 var app = builder.Build();
 
 // Configuração de Middlewares (Startup ->Configure)
@@ -162,8 +174,15 @@ if (app.Environment.IsDevelopment())
     app.ConfigureExceptionHandler();
 }
 
+
+
+
 // Static Files for Swagger configuration
 app.UseStaticFiles();
+
+
+// use after usestatic files and userouting
+app.UseCors(originsWithAllowedAccess);
 
 app.UseHttpsRedirection();
 app.UseAuthorization();

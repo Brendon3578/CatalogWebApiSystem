@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CatalogWebApiSystem.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [ServiceFilter(typeof(ApiLoggingResultFilter))]
     [Route("[controller]")]
     [ApiController]
@@ -71,6 +71,7 @@ namespace CatalogWebApiSystem.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<ActionResult<ProductDTO>> PostProduct(ProductDTO productDto)
         {
             if (productDto is null)
@@ -94,6 +95,7 @@ namespace CatalogWebApiSystem.Controllers
         }
 
         [HttpPut("{id:int}")] // constraint -> restrição
+        [Authorize]
         public async Task<ActionResult<ProductDTO>> PutProduct(int id, ProductDTO productDto)
         {
             if (productDto is null)
@@ -124,6 +126,7 @@ namespace CatalogWebApiSystem.Controllers
         }
 
         [HttpPatch("{id:int}/UpdatePartial")]
+        [Authorize]
         public async Task<ActionResult<ProductDTOUpdateResponse>> PatchProduct(int id, JsonPatchDocument<ProductDTOUpdateRequest> patchDocument)
         {
             if (patchDocument is null || id <= 0)
@@ -159,6 +162,7 @@ namespace CatalogWebApiSystem.Controllers
         }
 
         [HttpDelete("{id:int}")]
+        [Authorize]
         public async Task<IActionResult> DeleteProduct(int id)
         {
             var product = await _uow.ProductRepository.GetAsync(p => p.ProductId == id);
