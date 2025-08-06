@@ -146,10 +146,19 @@ builder.Services.AddAutoMapper(typeof(ModelDTOMappingProfile));
 var originsWithAllowedAccess = "_originsWithAllowedAccess";
 builder.Services.AddCors(options =>
 {
+    // da pra definir n políticas
+    // options.addDefaultPolicy( -> all controllers will use this policy by default
     options.AddPolicy(name: originsWithAllowedAccess,
         policy =>
         {
+
+            //policy.AllowAnyOrigin(); // Allow any origin
             policy.WithOrigins("https://apirequest.io");
+            //.AllowAnyMethod(); // Allow any HTTP method
+            //.WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+            //.WithHeaders("Authorization", "Content-Type", "Accept") // Allow specific headers
+            // .AllowAnyHeader(); // Allow any header
+            // .AllowCredentials(); // Allow credentials (cookies, authorization headers, etc.), é uma falha de segurança
         });
 });
 
@@ -183,6 +192,8 @@ app.UseStaticFiles();
 
 // use after usestatic files and userouting
 app.UseCors(originsWithAllowedAccess);
+
+// if add default policy -> app.UseCors() only
 
 app.UseHttpsRedirection();
 app.UseAuthorization();

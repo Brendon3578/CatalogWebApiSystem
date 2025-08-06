@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace CatalogWebApiSystem.Controllers
 {
     //[Authorize]
+    //[EnableCors("PolicyName")] // action ou controller
     [ServiceFilter(typeof(ApiLoggingResultFilter))]
     [Route("[controller]")]
     [ApiController]
